@@ -136,13 +136,57 @@ private:
 	 */
 	std::function<OUT(IN)> processingFunction_;
 public:
-	double testRunOnceTimeMs(IN  args)
+	/**
+	 * \brief 
+	 * \tparam Func 测试自定义的函数运行耗时
+	 * \param times 
+	 * \param func 
+	 * \return 
+	 */
+	template <typename Func>
+	double testDiyFuncRunTimeConsuming(size_t times, Func func) {
+		auto start = std::chrono::high_resolution_clock::now();
+		for (size_t i = 0; i < times; ++i) {
+			func();
+		}
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> diff = end - start;
+		return diff.count();
+	}
+
+	template<typename Func, typename... Para>
+	double testDiyFuncRunTimeConsuming(size_t times, Func func, Para... paras)
 	{
 		// 记录开始时间
 		auto start = std::chrono::high_resolution_clock::now();
 
-		// 调用传入的函数
-		std::invoke(std::forward<std::function<OUT(IN)>>(processingFunction_), std::forward<IN>(args));
+		for (int i = 0; i < times; ++i)
+		{
+			// 调用传入的函数并扩展参数包
+			auto wrapper = [&]() { return std::invoke(func, paras...); };
+			wrapper();
+		}
+
+		// 记录结束时间
+		auto end = std::chrono::high_resolution_clock::now();
+
+		// 计算耗时
+		std::chrono::duration<double, std::milli> elapsed = end - start;
+
+		// 返回耗时，单位为毫秒
+		return elapsed.count();
+	}
+
+	double testRunTimeConsuming(size_t times, IN  args)
+	{
+		// 记录开始时间
+		auto start = std::chrono::high_resolution_clock::now();
+
+		for (int i = 0; i < times; ++i)
+		{
+			// 调用传入的函数
+			std::invoke(std::forward<std::function<OUT(IN)>>(processingFunction_), std::forward<IN>(args));
+		}
 
 		// 记录结束时间
 		auto end = std::chrono::high_resolution_clock::now();

@@ -12,18 +12,18 @@ double fibonacci(double n) {
 
 int main()
 {
-#if 1
+    SequenceQueueTask<double, double> sq_;
+
+#if 0
     //记录开始时间
     auto start = std::chrono::steady_clock::now();
     //初始化
-    SequenceQueueTask<double, double> sq_;
     //配置（可选）
     //设置任务
     sq_.setProcessingFunction([](auto indata)
         {
-            return fibonacci(indata);
+            return fibonacci(30);
         });
-    double functionRunOnceTimeMs = sq_.testRunOnceTimeMs(30);
 
     //给数据
     for (double indata = 0; indata < 999; ++indata)
@@ -40,21 +40,10 @@ int main()
     auto end = std::chrono::steady_clock::now();
     std::cout << "time sq: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
 
-
 #else
-    std::vector<double> aa;
-    auto  start = std::chrono::steady_clock::now();
-    for (int indata = 0; indata < 999; ++indata)
-    {
-        aa.push_back(tan(sin(cos(tan(sin(sin(indata)))))));
-    }
-    //打印运行时间
-    //sleep 100ms
-    // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    auto end = std::chrono::steady_clock::now();
-    std::cout << "time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+    auto time2 =  sq_.testDiyFuncRunTimeConsuming(999, &fibonacci,30);
+    std::cout << "time: " << time2 << "ms" << std::endl;
 #endif
-
     system("pause");
 }
 
